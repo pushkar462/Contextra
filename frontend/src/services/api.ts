@@ -1,4 +1,4 @@
-const BASE = "";
+const BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.trim() || "";
 
 const TENANT_STORAGE_KEY = "multimodal_rag_tenant_id";
 
