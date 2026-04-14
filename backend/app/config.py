@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # Hugging Face Inference API (https://huggingface.co/settings/tokens)
     huggingfacehub_api_token: str = ""
     hf_chat_repo_id: str = "HuggingFaceH4/zephyr-7b-beta"
+    hf_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     # Ollama — free local LLM (https://ollama.com/) — no API cost
     ollama_base_url: str = "http://127.0.0.1:11434"
     ollama_model: str = "llama3.2"
