@@ -19,6 +19,9 @@ faiss-cpu>=1.8.0
 tiktoken>=0.7.0
 openai>=1.50.0
 
+# Local embeddings — used automatically when no OpenAI/HF key (e.g. Groq-only setup)
+sentence-transformers>=3.0.0
+
 pypdf>=5.0.0
 python-docx>=1.1.0
 Pillow>=10.0.0

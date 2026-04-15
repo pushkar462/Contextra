@@ -1,4 +1,12 @@
-"""Embeddings: OpenAI, Hugging Face Inference API, or (dev-only) SentenceTransformers."""
+"""Embeddings: Groq (uses OpenAI-compatible, but Groq doesn't provide embeddings),
+so for embeddings we use:
+  1. OpenAI embeddings  (if OPENAI_API_KEY set)
+  2. HuggingFace Inference API (if HF_TOKEN set)
+  3. Sentence Transformers locally (USE_SENTENCE_TRANSFORMERS=true or fallback)
+
+When using Groq for LLM, embeddings fall through to option 2 or 3.
+Set USE_SENTENCE_TRANSFORMERS=true on Render for zero-cost local embeddings.
+"""
 from functools import lru_cache
 import os
 
@@ -11,9 +19,7 @@ class _STEmbeddings(Embeddings):
     """SentenceTransformers wrapper for LangChain."""
 
     def __init__(self, model_name: str) -> None:
-        # Heavy dependency (torch); keep behind a flag so production deploys can avoid it.
         from sentence_transformers import SentenceTransformer
-
         self._model = SentenceTransformer(model_name)
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]:
@@ -31,30 +37,27 @@ def _hf_token() -> str:
 @lru_cache
 def get_embeddings() -> Embeddings:
     settings = get_settings()
+
+    # 1. OpenAI embeddings
     if settings.openai_api_key and not settings.use_sentence_transformers:
         from langchain_openai import OpenAIEmbeddings
-
         return OpenAIEmbeddings(
             model=settings.openai_embedding_model,
             openai_api_key=settings.openai_api_key,
             openai_api_base=settings.openai_base_url,
         )
 
+    # 2. HuggingFace Inference API embeddings
     token = _hf_token()
     if token and not settings.use_sentence_transformers:
         from langchain_huggingface import HuggingFaceEndpointEmbeddings
-
         return HuggingFaceEndpointEmbeddings(
             model=settings.hf_embedding_model,
             task="feature-extraction",
             huggingfacehub_api_token=token,
         )
 
-    if settings.use_sentence_transformers:
-        return _STEmbeddings(settings.st_model_name)
-
-    raise RuntimeError(
-        "No embeddings configured. Set OPENAI_API_KEY (OpenAI embeddings) or "
-        "HUGGINGFACEHUB_API_TOKEN/HF_TOKEN (Hugging Face embeddings), or set "
-        "USE_SENTENCE_TRANSFORMERS=true for dev-only local embeddings."
-    )
+    # 3. Local SentenceTransformers (free, works on Render, no API key needed)
+    # Triggered by USE_SENTENCE_TRANSFORMERS=true  OR  when no API keys at all
+    # (Groq doesn't offer embeddings, so this is the right fallback)
+    return _STEmbeddings(settings.st_model_name)

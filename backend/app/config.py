@@ -14,8 +14,12 @@ class Settings(BaseSettings):
     openai_chat_model: str = "gpt-4o-mini"
     openai_embedding_model: str = "text-embedding-3-small"
 
-    # LLM: auto = OpenAI → Hugging Face → Ollama (free local, no keys)
-    llm_backend: str = "auto"  # auto | openai | huggingface | ollama
+    # Groq — fast, free-tier LLM (https://console.groq.com/keys)
+    groq_api_key: str = ""
+    groq_chat_model: str = "llama-3.3-70b-versatile"
+
+    # LLM: auto = Groq → OpenAI → Hugging Face → Ollama (free local, no keys)
+    llm_backend: str = "auto"  # auto | groq | openai | huggingface | ollama
     # Hugging Face Inference API (https://huggingface.co/settings/tokens)
     huggingfacehub_api_token: str = ""
     hf_chat_repo_id: str = "HuggingFaceH4/zephyr-7b-beta"
@@ -30,7 +34,8 @@ class Settings(BaseSettings):
     # Set false to skip llava on images (fast upload; use OCR only if tesseract installed)
     use_ollama_vision: bool = True
 
-    # SentenceTransformers fallback when no OpenAI key for embeddings (dev only)
+    # SentenceTransformers fallback — used automatically when no OpenAI/HF key for embeddings
+    # Set true explicitly, OR it auto-activates when OPENAI_API_KEY and HF_TOKEN are both unset.
     use_sentence_transformers: bool = False
     st_model_name: str = "all-MiniLM-L6-v2"
 
@@ -58,6 +63,7 @@ class Settings(BaseSettings):
     max_upload_mb: int = 100
 
     # Set to '*' to allow all origins, or provide a comma-separated list of allowed origins.
+    # IMPORTANT: On Render, either set this to '*' or add your frontend URL explicitly.
     cors_origins: str = "*"
 
 
