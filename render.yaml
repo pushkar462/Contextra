@@ -1,0 +1,26 @@
+# Blueprint: https://render.com/docs/blueprint-spec
+# Repo: https://github.com/pushkar462/Contextra.git
+# Deployed: API https://contextra-b.onrender.com · UI https://contextra-1.onrender.com
+# Secrets in dashboard: HUGGINGFACEHUB_API_TOKEN (HF). Optional: OPENAI_API_KEY if you use OpenAI for embeddings/Whisper/vision.
+# HF-only: set LLM_BACKEND=huggingface and do not set OPENAI_API_KEY so embeddings use HF too (see app/services/embedding.py).
+services:
+  - type: web
+    name: contextra-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install --no-cache-dir -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: HUGGINGFACEHUB_API_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: LLM_BACKEND
+        value: huggingface
+      - key: DATA_ROOT
+        value: /tmp/contextra_data
+      - key: CORS_ORIGINS
+        value: https://contextra-1.onrender.com
+
+# Frontend static site (e.g. contextra-1) is managed manually on Render — set VITE_API_BASE_URL there in the dashboard.
