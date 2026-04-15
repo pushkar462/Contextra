@@ -2,6 +2,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,7 +34,22 @@ class Settings(BaseSettings):
     use_sentence_transformers: bool = False
     st_model_name: str = "all-MiniLM-L6-v2"
 
-    data_dir: Path = Path(__file__).resolve().parent.parent.parent / "data"
+    # Override filesystem root for tenant data (FAISS, uploads, registry). Env: DATA_ROOT.
+    # Default: repo-root `data/` next to `backend/`. On Render, set to /tmp/... or a mounted disk.
+    data_root: Path | None = None
+
+    @field_validator("data_root", mode="before")
+    @classmethod
+    def _empty_data_root(cls, v: object) -> object:
+        if v is None or v == "":
+            return None
+        return v
+
+    @property
+    def data_dir(self) -> Path:
+        if self.data_root is not None:
+            return Path(self.data_root).expanduser().resolve()
+        return Path(__file__).resolve().parent.parent.parent / "data"
 
     # When set, all mutating routes require X-API-Key or Authorization: Bearer
     api_key: str = ""

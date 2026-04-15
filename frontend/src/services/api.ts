@@ -1,4 +1,8 @@
-const BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.trim() || "";
+/** Production: set VITE_API_BASE_URL to your API origin (e.g. https://api-xxx.onrender.com). */
+const BASE =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim() ||
+  (import.meta.env.VITE_API_BASE as string | undefined)?.trim() ||
+  "";
 
 const TENANT_STORAGE_KEY = "multimodal_rag_tenant_id";
 
@@ -53,8 +57,8 @@ async function parseHttpError(r: Response): Promise<string> {
 function networkHint(err: unknown): string {
   if (err instanceof TypeError && err.message === "Failed to fetch") {
     return (
-      "Cannot reach API. Start the backend (cd backend && ./run_dev.sh on port 8000) and open the app with " +
-      "npm run dev (port 5173) so /upload is proxied. If the API runs on another port, update vite.config.ts proxy target."
+      "Cannot reach API. For local dev: start the backend (cd backend && ./run_dev.sh) and npm run dev (port 5173) so Vite proxies requests to the API. " +
+      "For production, set VITE_API_BASE_URL to your backend URL at build time. If the API uses another port locally, update vite.config.ts proxy target."
     );
   }
   if (err instanceof Error) return err.message;

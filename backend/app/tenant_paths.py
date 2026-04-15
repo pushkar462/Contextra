@@ -1,4 +1,7 @@
-"""Per-tenant filesystem layout under data/tenants/{id}/ with legacy fallback for default."""
+"""Per-tenant filesystem layout under data/tenants/{id}/ with legacy fallback for default.
+
+Data root comes from Settings.data_dir (env DATA_ROOT, or repo-root ../data by default).
+"""
 from __future__ import annotations
 
 import re
