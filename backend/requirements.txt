@@ -15,12 +15,6 @@ langchain-text-splitters>=0.3.0
 
 faiss-cpu>=1.8.0
 
-# Local embeddings (replaces HuggingFace Inference API)
-sentence-transformers>=3.0.0
-# Force CPU-only torch on Render to avoid pulling 2GB+ CUDA wheels
---extra-index-url https://download.pytorch.org/whl/cpu
-torch>=2.2.0
-
 pypdf>=5.0.0
 python-docx>=1.1.0
 Pillow>=10.0.0
@@ -29,3 +23,4 @@ pytesseract>=0.3.10
 numpy>=1.26.0
 
 ollama>=0.4.0
+fastembed>=0.4.0
